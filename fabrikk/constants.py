@@ -1,0 +1,2 @@
+ON = True
+OFF = False
