@@ -3,3 +3,4 @@ class ExecutionContext:
         self.input = input
         self.state = state
         self.metadata = metadata or {}
+        self.state_history = []
