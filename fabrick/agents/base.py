@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Callable
 
 from ..constants import STEP_MIDDLE
-from ..decorators import StepInfo, _FABRIKK_ATTR
+from ..decorators import StepInfo, _FABRICK_ATTR
 
 
 class AgentConfig:
@@ -26,7 +26,7 @@ class AgentConfig:
 
 
 # Attribute name for agent-specific config
-_FABRIKK_AGENT_ATTR = "_fabrikk_agent"
+_FABRICK_AGENT_ATTR = "_fabrick_agent"
 
 
 def agent_decorator(
@@ -63,7 +63,7 @@ def agent_decorator(
                 transitions_to=transitions_to,
                 options=merged,
             )
-            setattr(fn, _FABRIKK_ATTR, step_info)
+            setattr(fn, _FABRICK_ATTR, step_info)
 
             # Attach agent-specific config
             agent_config = AgentConfig(
@@ -71,7 +71,7 @@ def agent_decorator(
                 transitions_to=transitions_to,
                 **merged,
             )
-            setattr(fn, _FABRIKK_AGENT_ATTR, agent_config)
+            setattr(fn, _FABRICK_AGENT_ATTR, agent_config)
 
             return fn
 
@@ -86,4 +86,4 @@ def agent_decorator(
 
 def get_agent_config(fn: Callable) -> AgentConfig | None:
     """Retrieve the AgentConfig attached to a decorated function, or None."""
-    return getattr(fn, _FABRIKK_AGENT_ATTR, None)
+    return getattr(fn, _FABRICK_AGENT_ATTR, None)

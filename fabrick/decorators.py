@@ -7,7 +7,7 @@ from typing import Any, Callable
 from .constants import STEP_FINISH, STEP_MIDDLE, STEP_START
 
 # Attribute name used to tag decorated functions
-_FABRIKK_ATTR = "_fabrikk_step"
+_FABRICK_ATTR = "_fabrick_step"
 
 
 class StepInfo:
@@ -40,7 +40,7 @@ def _make_decorator(
             transitions_to=transitions_to,
             options=options,
         )
-        setattr(fn, _FABRIKK_ATTR, info)
+        setattr(fn, _FABRICK_ATTR, info)
         return fn
 
     return decorator
@@ -54,7 +54,7 @@ def start(fn: Callable | None = None, /, **kwargs: Any) -> Callable:
     if fn is not None:
         # Used as @start (no parentheses)
         info = StepInfo(step_type=STEP_START, name=fn.__name__)
-        setattr(fn, _FABRIKK_ATTR, info)
+        setattr(fn, _FABRICK_ATTR, info)
         return fn
     # Used as @start(...) with keyword args
     return _make_decorator(STEP_START, **kwargs)
@@ -67,7 +67,7 @@ def step(fn: Callable | None = None, /, **kwargs: Any) -> Callable:
     """
     if fn is not None:
         info = StepInfo(step_type=STEP_MIDDLE, name=fn.__name__)
-        setattr(fn, _FABRIKK_ATTR, info)
+        setattr(fn, _FABRICK_ATTR, info)
         return fn
     return _make_decorator(STEP_MIDDLE, **kwargs)
 
@@ -79,11 +79,11 @@ def finish(fn: Callable | None = None, /, **kwargs: Any) -> Callable:
     """
     if fn is not None:
         info = StepInfo(step_type=STEP_FINISH, name=fn.__name__)
-        setattr(fn, _FABRIKK_ATTR, info)
+        setattr(fn, _FABRICK_ATTR, info)
         return fn
     return _make_decorator(STEP_FINISH, **kwargs)
 
 
 def get_step_info(fn: Callable) -> StepInfo | None:
     """Retrieve the StepInfo attached to a decorated function, or None."""
-    return getattr(fn, _FABRIKK_ATTR, None)
+    return getattr(fn, _FABRICK_ATTR, None)

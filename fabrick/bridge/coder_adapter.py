@@ -14,7 +14,7 @@ import structlog
 from ..context import ExecutionContext
 from .tear import get_bridge
 
-logger = structlog.get_logger("fabrikk.bridge.coder")
+logger = structlog.get_logger("fabrick.bridge.coder")
 
 
 async def run_coder(

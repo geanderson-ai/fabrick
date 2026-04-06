@@ -14,7 +14,7 @@ import structlog
 from ..context import ExecutionContext
 from .tear import get_bridge
 
-logger = structlog.get_logger("fabrikk.bridge.security")
+logger = structlog.get_logger("fabrick.bridge.security")
 
 
 async def run_security_scan(

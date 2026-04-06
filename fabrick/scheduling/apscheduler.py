@@ -12,7 +12,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 from .base import SchedulerAdapter
 
-logger = structlog.get_logger("fabrikk.scheduling")
+logger = structlog.get_logger("fabrick.scheduling")
 
 
 class APSchedulerAdapter(SchedulerAdapter):

@@ -13,9 +13,9 @@ from typing import Any
 
 import structlog
 
-logger = structlog.get_logger("fabrikk.bridge")
+logger = structlog.get_logger("fabrick.bridge")
 
-# Default relative path from fabrikk package to Tear backend
+# Default relative path from fabrick package to Tear backend
 _DEFAULT_TEAR_BACKEND = Path(__file__).resolve().parents[2] / "Tear" / "apps" / "backend"
 
 

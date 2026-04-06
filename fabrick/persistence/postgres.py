@@ -13,7 +13,7 @@ from typing import Any
 
 from .base import CheckpointStore
 
-DEFAULT_DB_URL = "postgresql://localhost:5432/fabrikk"
+DEFAULT_DB_URL = "postgresql://localhost:5432/fabrick"
 
 
 class PostgresCheckpointStore(CheckpointStore):

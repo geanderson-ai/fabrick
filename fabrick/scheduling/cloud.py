@@ -13,7 +13,7 @@ import structlog
 
 from .base import SchedulerAdapter
 
-logger = structlog.get_logger("fabrikk.scheduling.cloud")
+logger = structlog.get_logger("fabrick.scheduling.cloud")
 
 
 class CloudSchedulerAdapter(SchedulerAdapter):

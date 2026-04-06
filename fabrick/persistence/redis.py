@@ -14,7 +14,7 @@ from typing import Any
 from .base import CheckpointStore
 
 DEFAULT_REDIS_URL = "redis://localhost:6379/0"
-KEY_PREFIX = "fabrikk:"
+KEY_PREFIX = "fabrick:"
 CHECKPOINT_TTL = 86400 * 7  # 7 days
 
 

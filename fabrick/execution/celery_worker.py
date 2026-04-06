@@ -10,7 +10,7 @@ from typing import Any
 
 import structlog
 
-logger = structlog.get_logger("fabrikk.execution.celery")
+logger = structlog.get_logger("fabrick.execution.celery")
 
 DEFAULT_BROKER = "redis://localhost:6379/0"
 DEFAULT_BACKEND = "redis://localhost:6379/1"
@@ -29,7 +29,7 @@ def get_celery_app() -> Any:
         backend = os.environ.get("CELERY_RESULT_BACKEND", DEFAULT_BACKEND)
 
         _celery_app = Celery(
-            "fabrikk",
+            "fabrick",
             broker=broker,
             backend=backend,
         )
@@ -59,7 +59,7 @@ def create_pipeline_task(
     """
     app = get_celery_app()
 
-    @app.task(name=f"fabrikk.run.{pipeline_module}.{pipeline_attr}", bind=True)
+    @app.task(name=f"fabrick.run.{pipeline_module}.{pipeline_attr}", bind=True)
     def run_pipeline_task(self: Any, input: Any = None) -> dict[str, Any]:
         import importlib
 

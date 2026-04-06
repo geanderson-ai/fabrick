@@ -8,7 +8,7 @@ from typing import Any, Generator
 
 import structlog
 
-logger = structlog.get_logger("fabrikk.observability.langsmith")
+logger = structlog.get_logger("fabrick.observability.langsmith")
 
 _langsmith_available = False
 _langsmith_client = None
@@ -54,7 +54,7 @@ def trace_pipeline(
         yield None
         return
 
-    project = os.environ.get("LANGSMITH_PROJECT", "fabrikk")
+    project = os.environ.get("LANGSMITH_PROJECT", "fabrick")
 
     run = RunTree(
         name=pipeline_name,

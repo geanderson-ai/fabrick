@@ -13,7 +13,7 @@ import structlog
 from ..context import ExecutionContext
 from .tear import get_bridge
 
-logger = structlog.get_logger("fabrikk.bridge.qa")
+logger = structlog.get_logger("fabrick.bridge.qa")
 
 
 async def run_qa_loop(

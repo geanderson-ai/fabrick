@@ -1,4 +1,4 @@
-from fabrikk import Fabrick, start, step, finish, ON
+from fabrick import Fabrick, start, step, finish, ON
 
 @start
 def function_a(context):

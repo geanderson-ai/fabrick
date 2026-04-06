@@ -58,5 +58,5 @@ def configure_logging(env: str = "dev", level: str = "INFO") -> None:
     root.addHandler(handler)
     root.setLevel(log_level)
 
-    # Set fabrikk logger level
-    logging.getLogger("fabrikk").setLevel(log_level)
+    # Set fabrick logger level
+    logging.getLogger("fabrick").setLevel(log_level)

@@ -8,9 +8,9 @@ from .base import CheckpointStore
 
 # Lazy imports to avoid requiring all backends
 _STORES: dict[str, str] = {
-    "sqlite": "fabrikk.persistence.sqlite:SQLiteCheckpointStore",
-    "postgres": "fabrikk.persistence.postgres:PostgresCheckpointStore",
-    "redis": "fabrikk.persistence.redis:RedisCheckpointStore",
+    "sqlite": "fabrick.persistence.sqlite:SQLiteCheckpointStore",
+    "postgres": "fabrick.persistence.postgres:PostgresCheckpointStore",
+    "redis": "fabrick.persistence.redis:RedisCheckpointStore",
 }
 
 

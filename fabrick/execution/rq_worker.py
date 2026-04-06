@@ -10,9 +10,9 @@ from typing import Any
 
 import structlog
 
-logger = structlog.get_logger("fabrikk.execution.rq")
+logger = structlog.get_logger("fabrick.execution.rq")
 
-DEFAULT_QUEUE = "fabrikk"
+DEFAULT_QUEUE = "fabrick"
 DEFAULT_REDIS_URL = "redis://localhost:6379/0"
 
 

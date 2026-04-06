@@ -7,7 +7,7 @@ O **Fabrick** e um orquestrador declarativo de pipelines de IA, leve e extensive
 ## Arquitetura
 
 ```
-fabrikk/
+fabrick/
 ├── __init__.py              # exports: Fabrick, decorators, constants
 ├── core.py                  # Fabrick engine (run, start, stop, scheduling)
 ├── decorators.py            # @start, @step, @finish
@@ -69,7 +69,7 @@ pip install -r requirements.txt
 O caso mais simples: definir steps com decorators e rodar uma vez.
 
 ```python
-from fabrikk import Fabrick, start, step, finish
+from fabrick import Fabrick, start, step, finish
 
 @start
 def ingest(context):
@@ -138,7 +138,7 @@ Passe `scheduler` com uma expressao cron e chame `.start()` em vez de `.run()`.
 O pipeline roda em background via APScheduler.
 
 ```python
-from fabrikk import Fabrick, start, step, finish
+from fabrick import Fabrick, start, step, finish
 
 @start
 def check_api(context):
@@ -182,7 +182,7 @@ pipeline.start()  # retorna imediatamente, roda em thread separada
 Ou usando a API direta para ter acesso ao Future:
 
 ```python
-from fabrikk.execution import run_in_background
+from fabrick.execution import run_in_background
 
 future = run_in_background(pipeline, input="data")
 # ... faz outras coisas ...
@@ -233,7 +233,7 @@ Por padrao qualquer step pode ir para qualquer outro. Ao usar `transitions_to`,
 o Fabrick ativa modo estrito e valida cada transicao.
 
 ```python
-from fabrikk import Fabrick, start, step, finish
+from fabrick import Fabrick, start, step, finish
 
 @start(transitions_to=["validate"])
 def ingest(context):
@@ -272,7 +272,7 @@ Os agent decorators (`@spec`, `@plan`, `@execute`, `@review`, `@security`) sao
 `@step` especializados com metadata extra. Funcionam com qualquer provider.
 
 ```python
-from fabrikk import Fabrick, spec, plan, execute, review, security
+from fabrick import Fabrick, spec, plan, execute, review, security
 
 @spec(mode="task", transitions_to=["create_plan"])
 def create_spec(context):
@@ -328,7 +328,7 @@ result = pipeline.run(input="Criar sistema de autenticacao")
 ### 9. Exemplo completo — tudo junto
 
 ```python
-from fabrikk import Fabrick, start, step, finish, ON
+from fabrick import Fabrick, start, step, finish, ON
 
 @start(transitions_to=["enrich"])
 def ingest(context):

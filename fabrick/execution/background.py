@@ -8,7 +8,7 @@ from typing import Any
 
 import structlog
 
-logger = structlog.get_logger("fabrikk.execution.background")
+logger = structlog.get_logger("fabrick.execution.background")
 
 # Shared thread pool for background execution
 _executor: ThreadPoolExecutor | None = None
@@ -17,7 +17,7 @@ _executor: ThreadPoolExecutor | None = None
 def _get_executor() -> ThreadPoolExecutor:
     global _executor
     if _executor is None:
-        _executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="fabrikk-bg")
+        _executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="fabrick-bg")
     return _executor
 
 
@@ -59,7 +59,7 @@ def run_in_thread(pipeline: Any, input: Any = None) -> threading.Thread:
 
     thread = threading.Thread(
         target=_run,
-        name=f"fabrikk-{pipeline.name}",
+        name=f"fabrick-{pipeline.name}",
         daemon=True,
     )
     thread.start()

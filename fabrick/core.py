@@ -34,7 +34,7 @@ from .persistence import CheckpointStore, create_store
 from .providers import get_provider_config, resolve_provider
 from .scheduling import SchedulerAdapter
 
-logger = structlog.get_logger("fabrikk")
+logger = structlog.get_logger("fabrick")
 
 
 class Fabrick:
@@ -380,7 +380,7 @@ class Fabrick:
         backend = "apscheduler"  # default; could be extended to detect cloud
         self._scheduler = create_scheduler(backend)
 
-        job_id = f"fabrikk-{self.name.replace(' ', '-').lower()}"
+        job_id = f"fabrick-{self.name.replace(' ', '-').lower()}"
 
         self._scheduler.schedule(
             job_id=job_id,

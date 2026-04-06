@@ -10,7 +10,7 @@ from typing import Any
 
 from .base import CheckpointStore
 
-DEFAULT_DB_PATH = "fabrikk.db"
+DEFAULT_DB_PATH = "fabrick.db"
 
 
 class SQLiteCheckpointStore(CheckpointStore):

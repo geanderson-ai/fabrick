@@ -7,8 +7,8 @@ from typing import Any
 from .base import SchedulerAdapter
 
 _SCHEDULERS: dict[str, str] = {
-    "apscheduler": "fabrikk.scheduling.apscheduler:APSchedulerAdapter",
-    "cloud": "fabrikk.scheduling.cloud:CloudSchedulerAdapter",
+    "apscheduler": "fabrick.scheduling.apscheduler:APSchedulerAdapter",
+    "cloud": "fabrick.scheduling.cloud:CloudSchedulerAdapter",
 }
 
 

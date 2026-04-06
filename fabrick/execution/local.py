@@ -7,7 +7,7 @@ from typing import Any
 
 import structlog
 
-logger = structlog.get_logger("fabrikk.execution.local")
+logger = structlog.get_logger("fabrick.execution.local")
 
 
 def run_sync(pipeline: Any, input: Any = None) -> Any:

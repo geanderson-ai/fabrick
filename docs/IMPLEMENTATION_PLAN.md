@@ -49,7 +49,7 @@ Decorators especializados que encapsulam fases do Tear. Cada um é um `@step` co
 #### `@spec` — Criação de Especificação
 
 ```python
-from fabrikk import Fabrick, spec, plan, execute, review, security
+from fabrick import Fabrick, spec, plan, execute, review, security
 
 @spec(
     mode="interactive",         # interactive | task | auto
@@ -245,7 +245,7 @@ async def security_scan(context):
 ## 3. Pipeline Completo — Exemplo de Uso
 
 ```python
-from fabrikk import Fabrick, spec, plan, execute, review, security, finish, ON
+from fabrick import Fabrick, spec, plan, execute, review, security, finish, ON
 
 @spec(mode="task", transitions_to=["create_plan"])
 async def create_spec(context):
@@ -415,10 +415,10 @@ Para Ollama, thinking tokens são automaticamente desabilitados (`max_thinking_t
 
 ## 7. Plano de Implementação — Fases
 
-### Fase 1: Core `fabrikk` (pacote Python)
+### Fase 1: Core `fabrick` (pacote Python)
 
 ```
-fabrikk/
+fabrick/
 ├── __init__.py              # exports públicos
 ├── core.py                  # classe Fabrick
 ├── decorators.py            # @start, @step, @finish
@@ -434,7 +434,7 @@ fabrikk/
 ### Fase 2: Decorators de Agente
 
 ```
-fabrikk/
+fabrick/
 ├── agents/
 │   ├── __init__.py
 │   ├── base.py              # AgentDecorator (classe base)
@@ -450,7 +450,7 @@ fabrikk/
 ### Fase 3: Bridge com Tear
 
 ```
-fabrikk/
+fabrick/
 ├── bridge/
 │   ├── __init__.py
 │   ├── tear.py       # adapter principal
@@ -466,7 +466,7 @@ fabrikk/
 ### Fase 4: Provider Layer
 
 ```
-fabrikk/
+fabrick/
 ├── providers/
 │   ├── __init__.py
 │   ├── base.py              # ProviderAdapter (interface)
@@ -481,7 +481,7 @@ fabrikk/
 ### Fase 5: Observabilidade e Persistência
 
 ```
-fabrikk/
+fabrick/
 ├── observability/
 │   ├── __init__.py
 │   ├── structlog_config.py  # setup do structlog (dev/prod)
@@ -498,7 +498,7 @@ fabrikk/
 ### Fase 6: Scheduling e Escala
 
 ```
-fabrikk/
+fabrick/
 ├── scheduling/
 │   ├── __init__.py
 │   ├── base.py              # SchedulerAdapter (interface)
@@ -577,7 +577,7 @@ Métricas de comparação:
 ## 11. Estrutura Final do Pacote
 
 ```
-fabrikk/
+fabrick/
 ├── __init__.py
 ├── core.py
 ├── decorators.py
