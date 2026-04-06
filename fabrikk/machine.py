@@ -1,170 +1,137 @@
+"""Fabrikk PipelineMachine — state machine wrapper around `transitions`."""
+
+from __future__ import annotations
+
 from transitions import Machine
 
-from fabrikk.logging_config import get_logger
-
-logger = get_logger()
-
-RESERVED_STATES = {"idle", "completed", "failed"}
-
-
-class InvalidTransitionError(RuntimeError):
-    """Raised when a state transition is not allowed in strict mode."""
-    pass
+from .constants import MACHINE_FLEXIBLE, MACHINE_STRICT, STATE_COMPLETED, STATE_FAILED, STATE_IDLE
+from .exceptions import InvalidTransitionError
 
 
 class PipelineMachine:
-    """Wraps transitions.Machine to manage pipeline lifecycle.
+    """Wraps the `transitions` library to manage pipeline state lifecycle.
 
-    Two modes of operation:
-    - Flexible (default): auto_transitions=True, any step can go to any other.
-    - Strict (opt-in): auto_transitions=False, only declared transitions are allowed.
-      Activated when any step declares transitions_to.
+    Supports two modes:
+    - flexible (default): any registered state can transition to any other.
+    - strict: only transitions declared via `transitions_to` are allowed.
     """
 
-    state = None  # managed by transitions.Machine
+    def __init__(self, mode: str = MACHINE_FLEXIBLE):
+        self.mode = mode
+        self._states: list[str] = [STATE_IDLE, STATE_FAILED, STATE_COMPLETED]
+        self._transitions: list[dict] = []
+        self._step_allowed_targets: dict[str, list[str]] = {}
+        self._machine: Machine | None = None
+        self._model = _MachineModel()
 
-    def __init__(self, steps_meta, start_step_name, finish_step_name):
-        """Build the state machine from registered step metadata.
+    def add_state(self, name: str, transitions_to: list[str] | None = None) -> None:
+        """Register a state (step name) in the machine."""
+        if name not in self._states:
+            self._states.append(name)
+        if transitions_to:
+            self._step_allowed_targets[name] = transitions_to
 
-        Args:
-            steps_meta: list of dicts with keys 'name', 'kind', 'transitions_to'.
-            start_step_name: name of the @start step.
-            finish_step_name: name of the @finish step.
-        """
-        self._start_step_name = start_step_name
-        self._finish_step_name = finish_step_name
-
-        # Validate reserved names
-        for meta in steps_meta:
-            if meta["name"] in RESERVED_STATES:
-                raise ValueError(
-                    f"Step name '{meta['name']}' is reserved. "
-                    f"Cannot use: {', '.join(sorted(RESERVED_STATES))}"
-                )
-
-        # Determine mode: strict if any step declares transitions_to
-        self._strict = any(
-            meta.get("transitions_to") is not None for meta in steps_meta
-        )
-
-        # Build states
-        step_names = [meta["name"] for meta in steps_meta]
-        states = ["idle"] + step_names + ["completed", "failed"]
-
-        # Build transitions
-        transitions = self._build_transitions(steps_meta, step_names)
-
-        # Create the machine
-        self._machine = Machine(
-            model=self,
-            states=states,
-            initial="idle",
-            transitions=transitions,
-            send_event=True,
-            before_state_change=self._before_state_change,
-            after_state_change=self._after_state_change,
-        )
-
-    def _build_transitions(self, steps_meta, step_names):
-        transitions = []
-
-        # begin: idle -> start step
-        transitions.append({
-            "trigger": "begin",
-            "source": "idle",
-            "dest": self._start_step_name,
-        })
-
-        # fail: any -> failed (wildcard)
-        transitions.append({
-            "trigger": "fail",
-            "source": "*",
-            "dest": "failed",
-        })
-
-        # complete: finish step -> completed
-        transitions.append({
-            "trigger": "complete",
-            "source": self._finish_step_name,
-            "dest": "completed",
-        })
-
-        if self._strict:
-            # Only declared transitions
-            meta_by_name = {m["name"]: m for m in steps_meta}
-            for meta in steps_meta:
-                targets = meta.get("transitions_to")
-                if targets:
-                    for target in targets:
-                        transitions.append({
-                            "trigger": f"to_{target}",
-                            "source": meta["name"],
-                            "dest": target,
-                        })
+    def build(self) -> None:
+        """Build the internal transitions.Machine after all states are registered."""
+        if self.mode == MACHINE_FLEXIBLE:
+            self._transitions = self._build_flexible_transitions()
         else:
-            # Flexible: any step can go to any other step
-            for source in step_names:
-                for dest in step_names:
-                    if source != dest:
-                        transitions.append({
-                            "trigger": f"to_{dest}",
-                            "source": source,
-                            "dest": dest,
-                        })
+            self._transitions = self._build_strict_transitions()
 
+        # Always allow transition to failed from any state
+        for state in self._states:
+            if state != STATE_FAILED:
+                self._transitions.append({
+                    "trigger": "fail",
+                    "source": state,
+                    "dest": STATE_FAILED,
+                })
+
+        self._machine = Machine(
+            model=self._model,
+            states=self._states,
+            transitions=self._transitions,
+            initial=STATE_IDLE,
+            auto_transitions=False,
+            send_event=False,
+        )
+
+    def _build_flexible_transitions(self) -> list[dict]:
+        """In flexible mode, every state can go to every other state."""
+        transitions = []
+        non_terminal = [s for s in self._states if s not in (STATE_FAILED, STATE_COMPLETED)]
+        all_targets = [s for s in self._states if s != STATE_IDLE]
+
+        for source in non_terminal:
+            for dest in all_targets:
+                if source != dest:
+                    transitions.append({
+                        "trigger": f"to_{dest}",
+                        "source": source,
+                        "dest": dest,
+                    })
         return transitions
 
-    def advance_to(self, target_state):
-        """Validate and transition to the target state.
+    def _build_strict_transitions(self) -> list[dict]:
+        """In strict mode, only declared transitions are allowed."""
+        transitions = []
+        for source, targets in self._step_allowed_targets.items():
+            for dest in targets:
+                transitions.append({
+                    "trigger": f"to_{dest}",
+                    "source": source,
+                    "dest": dest,
+                })
+        # idle -> first registered non-special state
+        first_step = self._get_first_step()
+        if first_step:
+            transitions.append({
+                "trigger": f"to_{first_step}",
+                "source": STATE_IDLE,
+                "dest": first_step,
+            })
+        return transitions
 
-        Raises InvalidTransitionError if the transition is not allowed.
-        """
+    def _get_first_step(self) -> str | None:
+        """Return the first user-registered state (not idle/failed/completed)."""
+        special = {STATE_IDLE, STATE_FAILED, STATE_COMPLETED}
+        for s in self._states:
+            if s not in special:
+                return s
+        return None
+
+    def transition(self, target_state: str) -> None:
+        """Execute a state transition."""
         trigger_name = f"to_{target_state}"
+        current = self._model.state
 
-        allowed = self.get_allowed_triggers()
-        if trigger_name not in allowed:
-            raise InvalidTransitionError(
-                f"Transition from '{self.current_state}' to '{target_state}' "
-                f"is not allowed. Allowed triggers: {allowed}"
-            )
+        if not hasattr(self._model, trigger_name):
+            allowed = self.get_allowed_transitions()
+            raise InvalidTransitionError(current, target_state, allowed)
 
-        # Fire the trigger
-        self.trigger(trigger_name)
+        trigger_fn = getattr(self._model, trigger_name)
+        if not trigger_fn():
+            allowed = self.get_allowed_transitions()
+            raise InvalidTransitionError(current, target_state, allowed)
+
+    def fail(self) -> None:
+        """Transition to the failed state from any state."""
+        self._model.fail()
 
     @property
-    def current_state(self):
-        return self.state
+    def current_state(self) -> str:
+        return self._model.state
 
-    @property
-    def is_strict(self):
-        return self._strict
+    def get_allowed_transitions(self) -> list[str]:
+        """Return states reachable from the current state."""
+        current = self._model.state
+        allowed = []
+        for t in self._transitions:
+            if t["source"] == current:
+                allowed.append(t["dest"])
+        return sorted(set(allowed))
 
-    def get_allowed_triggers(self):
-        """Return list of trigger names available from the current state."""
-        return [
-            event.name
-            for event in self._machine.events.values()
-            for _ in event.transitions.get(self.state, [])
-        ] + [
-            event.name
-            for event in self._machine.events.values()
-            for _ in event.transitions.get("*", [])
-        ]
 
-    def reset(self):
-        """Reset the machine to idle state for re-execution."""
-        self.state = "idle"
-        logger.debug("Machine reset to idle")
-
-    def _before_state_change(self, event):
-        logger.info(
-            "State transition",
-            from_state=self.state,
-            to_state=event.transition.dest,
-            trigger=event.event.name,
-        )
-
-    def _after_state_change(self, event):
-        logger.debug("State changed", current_state=self.state)
-        if self.state in ("completed", "failed"):
-            logger.info("Pipeline reached terminal state", state=self.state)
+class _MachineModel:
+    """Internal model object for the transitions library."""
+    pass
