@@ -5,7 +5,7 @@ from .context import ExecutionContext
 from .contracts import StepResult
 from .core import Fabrick
 from .decorators import finish, start, step
-from .agents import execute, plan, review, security, spec
+from .agents import architecture, execute, plan, review, security, spec
 from .exceptions import (
     DuplicateStepError,
     FabrikkError,
@@ -30,6 +30,7 @@ __all__ = [
     "execute",
     "review",
     "security",
+    "architecture",
     # Constants
     "ON",
     "OFF",
